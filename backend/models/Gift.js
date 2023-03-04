@@ -23,6 +23,7 @@ const Gift = mongoose.model(
     available: {
       type: Boolean,
     },
+    user: Object,
     guest: Object,
   }, {timestamps: true}),
 )
