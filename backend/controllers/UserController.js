@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken')
 const createUserToken = require('../helpers/create-user-token')
 const getToken = require('../helpers/get-token')
 const getUserByToken = require('../helpers/get-user-by-token')
+const { imageUpload } = require('../helpers/image-upload')
 
 module.exports = class UserController {
    static async register(req, res) {
@@ -110,8 +111,6 @@ module.exports = class UserController {
  static async checkUser(req, res) {
    let currentUser
 
-   console.log(req.headers.authorization)
-
    if (req.headers.authorization) {
      const token = getToken(req)
      const decoded = jwt.verify(token, 'nossosecret')
@@ -147,10 +146,9 @@ static async editUser(req, res) {
 
   const { name, email, phone, password, confirmpassword } = req.body
 
-  let image = ''
 
   if (req.file) {
-    image = req.file.filename
+    user.image = req.file.filename
   }
 
   // validations
@@ -175,11 +173,6 @@ static async editUser(req, res) {
   }
 
   user.email = email
-
-  if (image) {
-    const imageName = req.file.filename
-    user.image = imageName
-  }
 
   if (!phone) {
     res.status(422).json({ message: 'O telefone é obrigatório!' })
