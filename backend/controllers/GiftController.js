@@ -67,4 +67,13 @@ module.exports = class GiftController {
          res.status(500).json({message: error})
       }
    }
+
+   // get all registered gifts
+   static async getAll(req, res) {
+      const gifts = await Gift.find().sort('-createdAt')
+
+      res.status(200).json({
+         gifts: gifts,
+      })
+   }
 }
