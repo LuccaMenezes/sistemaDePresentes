@@ -8,7 +8,9 @@ const getUserByToken = require('../helpers/get-user-by-token')
 module.exports = class GiftController {
    // create a gift
    static async create(req, res) {
-      const { name, description, category, images } = req.body
+      const { name, description, category } = req.body
+
+      const images = req.files
 
       const available = true
 
@@ -29,7 +31,12 @@ module.exports = class GiftController {
          res.status(422).json({message: "A categoria é obrigatória!"})
          return
       }
-
+      console.log (images);
+      if (!req.files || Object.keys(req.files).length === 0) {
+         res.status(422).json({ message: "A imagem é obrigatória!" })
+         return
+       }
+       
       // get gift owner
       const token = getToken(req)
       const user = await getUserByToken(token)
@@ -44,6 +51,10 @@ module.exports = class GiftController {
             _id: user.id,
             name: user.name,
          }
+      })
+
+      images.map((image) => {
+         gift.images.push(image.filename)
       })
 
       try {
