@@ -4,6 +4,7 @@ const Gift = require('../models/Gift')
 
 const getToken = require('../helpers/get-token')
 const getUserByToken = require('../helpers/get-user-by-token')
+const ObjectId = require('mongoose').Types.ObjectId
 
 module.exports = class GiftController {
    // create a gift
@@ -74,6 +75,20 @@ module.exports = class GiftController {
 
       res.status(200).json({
          gifts: gifts,
+      })
+   }
+
+   /// get all user gifts
+   static async getAllUserGifts(req, res) {
+      // get user
+      const token = getToken(req)
+      const user = await getUserByToken(token)
+      const userId = user._id.toString();
+
+      const gifts = await Gift.find({ 'user._id': userId })
+
+      res.status(200).json({
+         gifts,
       })
    }
 }

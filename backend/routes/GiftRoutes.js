@@ -9,5 +9,6 @@ const { imageUpload } = require('../helpers/image-upload')
 
 router.post('/create', verifyToken, imageUpload.array('images'), GiftController.create)
 router.get('/', GiftController.getAll)
+router.get('/mygifts', verifyToken, GiftController.getAllUserGifts)
 
 module.exports = router
