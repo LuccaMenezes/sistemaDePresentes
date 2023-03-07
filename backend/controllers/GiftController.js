@@ -147,4 +147,70 @@ module.exports = class GiftController {
 
       res.status(200).json({ message: 'Presente removido com sucesso!' })
    }
+
+   static async updateGift(req, res) {
+      const id = req.params.id
+
+      const { name, description, category, available } = req.body
+
+      const images = req.files
+
+      const updateData = {}
+
+    // check if gift exists
+    const gift = await Gift.findOne({ _id: id })
+
+    if (!gift) {
+      res.status(404).json({ message: 'Presente não encontrado!' })
+      return
+    }
+
+    // check if user registered this gift
+    const token = getToken(req)
+    const user = await getUserByToken(token)
+
+    if (gift.user._id.toString() != user._id.toString()) {
+      res.status(404).json({
+        message:
+          'Houve um problema em processar sua solicitação, tente novamente mais tarde!',
+      })
+      return
+    }
+
+    // validations
+    if(!name) {
+      res.status(422).json({message: "O nome é obrigatório!"})
+      return
+   } else {
+      updateData.name = name
+   }
+
+   if(!description) {
+      res.status(422).json({message: "A descrição é obrigatória!"})
+      return
+   } else {
+      updateData.description = description
+   }
+
+   if(!category) {
+      res.status(422).json({message: "A categoria é obrigatória!"})
+      return
+   } else {
+      updateData.category = category
+   }
+   console.log (images);
+   if (!req.files || Object.keys(req.files).length === 0) {
+      res.status(422).json({ message: "A imagem é obrigatória!" })
+      return
+   } else {
+      updateData.images = []
+      images.map((image) => {
+         updateData.images.push(image.filename)
+      })
+   }
+
+   await Gift.findByIdAndUpdate(id, updateData)
+
+   res.status(200).json({ message: 'Presente atualizado com sucesso!'})
+   }
 }
