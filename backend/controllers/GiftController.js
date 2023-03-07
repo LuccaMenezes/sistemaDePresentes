@@ -91,4 +91,25 @@ module.exports = class GiftController {
          gifts,
       })
    }
+
+   static async getGiftById(req, res) {
+      const id = req.params.id
+
+      if (!ObjectId.isValid(id)) {
+         res.status(422).json({ message: 'ID inválido!' })
+         return
+      }
+
+      // check if gift exists
+      const gift = await Gift.findOne({ _id: id })
+
+      if (!gift) {
+         res.status(404).json({ message: 'Presente não encontrado!' })
+         return
+      }
+
+      res.status(200).json({
+         gift: gift,
+      })
+   }
 }
