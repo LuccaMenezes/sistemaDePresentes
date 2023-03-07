@@ -112,4 +112,39 @@ module.exports = class GiftController {
          gift: gift,
       })
    }
+
+   // remove a gift
+   static async removeGiftById(req, res) {
+      const id = req.params.id
+
+      // check if id is valid
+      if (!ObjectId.isValid(id)) {
+         res.status(422).json({ message: 'ID inválido!' })
+         return
+      }
+
+      // check if gift exists
+      const gift = await Gift.findOne({ _id: id })
+
+      if (!gift) {
+         res.status(404).json({ message: 'Presente não encontrado!' })
+         return
+      }
+
+      // check if user registered this gift
+      const token = getToken(req)
+      const user = await getUserByToken(token)
+
+      if (gift.user._id.toString() != user._id.toString()) {
+         res.status(404).json({
+            message:
+               'Houve um problema em processar sua solicitação, tente novamente mais tarde!',
+         })
+         return
+      }
+
+      await Gift.findByIdAndRemove(id)
+
+      res.status(200).json({ message: 'Presente removido com sucesso!' })
+   }
 }

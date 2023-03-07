@@ -11,5 +11,6 @@ router.post('/create', verifyToken, imageUpload.array('images'), GiftController.
 router.get('/', GiftController.getAll)
 router.get('/mygifts', verifyToken, GiftController.getAllUserGifts)
 router.get('/:id', GiftController.getGiftById)
+router.delete('/:id', verifyToken, GiftController.removeGiftById)
 
 module.exports = router
