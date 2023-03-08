@@ -18,26 +18,26 @@ module.exports = class GiftController {
       // images upload
 
       // validations
-      if(!name) {
-         res.status(422).json({message: "O nome é obrigatório!"})
+      if (!name) {
+         res.status(422).json({ message: "O nome é obrigatório!" })
          return
       }
 
-      if(!description) {
-         res.status(422).json({message: "A descrição é obrigatória!"})
+      if (!description) {
+         res.status(422).json({ message: "A descrição é obrigatória!" })
          return
       }
 
-      if(!category) {
-         res.status(422).json({message: "A categoria é obrigatória!"})
+      if (!category) {
+         res.status(422).json({ message: "A categoria é obrigatória!" })
          return
       }
-      console.log (images);
+      console.log(images);
       if (!req.files || Object.keys(req.files).length === 0) {
          res.status(422).json({ message: "A imagem é obrigatória!" })
          return
-       }
-       
+      }
+
       // get gift owner
       const token = getToken(req)
       const user = await getUserByToken(token)
@@ -65,7 +65,7 @@ module.exports = class GiftController {
             newGift,
          })
       } catch (error) {
-         res.status(500).json({message: error})
+         res.status(500).json({ message: error })
       }
    }
 
@@ -157,60 +157,76 @@ module.exports = class GiftController {
 
       const updateData = {}
 
-    // check if gift exists
-    const gift = await Gift.findOne({ _id: id })
+      // check if gift exists
+      const gift = await Gift.findOne({ _id: id })
 
-    if (!gift) {
-      res.status(404).json({ message: 'Presente não encontrado!' })
-      return
-    }
+      if (!gift) {
+         res.status(404).json({ message: 'Presente não encontrado!' })
+         return
+      }
 
-    // check if user registered this gift
-    const token = getToken(req)
-    const user = await getUserByToken(token)
+      // check if user registered this gift
+      const token = getToken(req)
+      const user = await getUserByToken(token)
 
-    if (gift.user._id.toString() != user._id.toString()) {
-      res.status(404).json({
-        message:
-          'Houve um problema em processar sua solicitação, tente novamente mais tarde!',
+      if (gift.user._id.toString() != user._id.toString()) {
+         res.status(404).json({
+            message:
+               'Houve um problema em processar sua solicitação, tente novamente mais tarde!',
+         })
+         return
+      }
+
+      // validations
+      if (!name) {
+         res.status(422).json({ message: "O nome é obrigatório!" })
+         return
+      } else {
+         updateData.name = name
+      }
+
+      if (!description) {
+         res.status(422).json({ message: "A descrição é obrigatória!" })
+         return
+      } else {
+         updateData.description = description
+      }
+
+      if (!category) {
+         res.status(422).json({ message: "A categoria é obrigatória!" })
+         return
+      } else {
+         updateData.category = category
+      }
+      console.log(images);
+      if (!req.files || Object.keys(req.files).length === 0) {
+         res.status(422).json({ message: "A imagem é obrigatória!" })
+         return
+      } else {
+         updateData.images = []
+         images.map((image) => {
+            updateData.images.push(image.filename)
+         })
+      }
+
+      await Gift.findByIdAndUpdate(id, updateData)
+
+      res.status(200).json({ message: 'Presente atualizado com sucesso!' })
+   }
+
+   static async concludeGift(req, res) {
+      const id = req.params.id
+
+      // check if gift exists
+      const gift = await Gift.findOne({ _id: id })
+
+      gift.available = false
+
+      await Gift.findByIdAndUpdate(gift._id, gift)
+
+      res.status(200).json({
+         gift: gift,
+         message: `Presente adicionado com sucesso`,
       })
-      return
-    }
-
-    // validations
-    if(!name) {
-      res.status(422).json({message: "O nome é obrigatório!"})
-      return
-   } else {
-      updateData.name = name
-   }
-
-   if(!description) {
-      res.status(422).json({message: "A descrição é obrigatória!"})
-      return
-   } else {
-      updateData.description = description
-   }
-
-   if(!category) {
-      res.status(422).json({message: "A categoria é obrigatória!"})
-      return
-   } else {
-      updateData.category = category
-   }
-   console.log (images);
-   if (!req.files || Object.keys(req.files).length === 0) {
-      res.status(422).json({ message: "A imagem é obrigatória!" })
-      return
-   } else {
-      updateData.images = []
-      images.map((image) => {
-         updateData.images.push(image.filename)
-      })
-   }
-
-   await Gift.findByIdAndUpdate(id, updateData)
-
-   res.status(200).json({ message: 'Presente atualizado com sucesso!'})
    }
 }

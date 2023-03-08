@@ -13,5 +13,6 @@ router.get('/mygifts', verifyToken, GiftController.getAllUserGifts)
 router.get('/:id', GiftController.getGiftById)
 router.delete('/:id', verifyToken, GiftController.removeGiftById)
 router.patch('/:id', verifyToken, imageUpload.array('images'), GiftController.updateGift)
+router.patch('/conclude/:id', verifyToken, GiftController.concludeGift)
 
 module.exports = router
